@@ -390,6 +390,8 @@ class RepoMap:
         if not references:
             pass
 
+        # remove personalization for files that not in the graph
+        personalization = {k: v for k, v in personalization.items() if k in G.nodes}
         if personalization:
             pers_args = dict(personalization=personalization, dangling=personalization)
         else:
