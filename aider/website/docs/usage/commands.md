@@ -3,7 +3,14 @@ parent: Usage
 nav_order: 50
 description: Control aider with in-chat commands like /add, /model, etc.
 ---
+
 # In-chat commands
+{: .no_toc }
+
+- TOC
+{:toc}
+
+## Slash commands
 
 Aider supports commands from within the chat, which all start with `/`.
 
@@ -22,23 +29,28 @@ cog.out(get_help_md())
 | **/code** | Ask for changes to your code |
 | **/commit** | Commit edits to the repo made outside the chat (commit message optional) |
 | **/copy** | Copy the last assistant message to the clipboard |
+| **/copy-context** | Copy the current chat context as markdown, suitable to paste into a web UI |
 | **/diff** | Display the diff of changes since the last message |
 | **/drop** | Remove files from the chat session to free up context space |
+| **/editor** | Open an editor to write a prompt |
 | **/exit** | Exit the application |
 | **/git** | Run a git command (output excluded from chat) |
 | **/help** | Ask questions about aider |
 | **/lint** | Lint and fix in-chat files or all dirty files if none in chat |
+| **/load** | Load and execute commands from a file |
 | **/ls** | List all known files and indicate which are included in the chat session |
 | **/map** | Print out the current repository map |
 | **/map-refresh** | Force a refresh of the repository map |
 | **/model** | Switch to a new LLM |
 | **/models** | Search the list of available models |
+| **/multiline-mode** | Toggle multiline mode (swaps behavior of Enter and Meta+Enter) |
 | **/paste** | Paste image/text from the clipboard into the chat.        Optionally provide a name for the image. |
 | **/quit** | Exit the application |
-| **/read-only** | Add files to the chat that are for reference, not to be edited |
+| **/read-only** | Add files to the chat that are for reference only, or turn added files to read-only |
 | **/report** | Report a problem by opening a GitHub Issue |
 | **/reset** | Drop all files and clear the chat history |
 | **/run** | Run a shell command and optionally add the output to the chat (alias: !) |
+| **/save** | Save commands to a file that can reconstruct the current chat session's files |
 | **/settings** | Print out the current settings |
 | **/test** | Run a shell command and add the output to the chat on non-zero exit code |
 | **/tokens** | Report on the number of tokens used by the current chat context |
@@ -67,6 +79,10 @@ The interactive prompt is built with [prompt-toolkit](https://github.com/prompt-
 
 ### Emacs
 
+- `Up Arrow` : Move up one line in the current message.
+- `Down Arrow` : Move down one line in the current message.
+- `Ctrl-Up` : Scroll back through previously sent messages.
+- `Ctrl-Down` : Scroll forward through previously sent messages.
 - `Ctrl-A` : Move cursor to the start of the line.
 - `Ctrl-B` : Move cursor back one character.
 - `Ctrl-D` : Delete the character under the cursor.
@@ -83,6 +99,10 @@ The interactive prompt is built with [prompt-toolkit](https://github.com/prompt-
 
 To use vi/vim keybindings, run aider with the `--vim` switch.
 
+- `Up Arrow` : Move up one line in the current message.
+- `Down Arrow` : Move down one line in the current message.
+- `Ctrl-Up` : Scroll back through previously sent messages.
+- `Ctrl-Down` : Scroll forward through previously sent messages.
 - `Esc` : Switch to command mode.
 - `i` : Switch to insert mode.
 - `a` : Move cursor one character to the right and switch to insert mode.

@@ -1,9 +1,9 @@
 import hashlib
 import json
-
-import backoff
+import time
 
 from aider.dump import dump  # noqa: F401
+from aider.exceptions import LiteLLMExceptions
 from aider.llm import litellm
 
 # from diskcache import Cache
@@ -13,37 +13,7 @@ CACHE_PATH = "~/.aider.send.cache.v1"
 CACHE = None
 # CACHE = Cache(CACHE_PATH)
 
-
-def retry_exceptions():
-    import httpx
-
-    return (
-        httpx.ConnectError,
-        httpx.RemoteProtocolError,
-        httpx.ReadTimeout,
-        litellm.exceptions.APIConnectionError,
-        litellm.exceptions.APIError,
-        litellm.exceptions.RateLimitError,
-        litellm.exceptions.ServiceUnavailableError,
-        litellm.exceptions.Timeout,
-        litellm.exceptions.InternalServerError,
-        litellm.llms.anthropic.chat.AnthropicError,
-    )
-
-
-def lazy_litellm_retry_decorator(func):
-    def wrapper(*args, **kwargs):
-        decorated_func = backoff.on_exception(
-            backoff.expo,
-            retry_exceptions(),
-            max_time=60,
-            on_backoff=lambda details: print(
-                f"{details.get('exception', 'Exception')}\nRetry in {details['wait']:.1f} seconds."
-            ),
-        )(func)
-        return decorated_func(*args, **kwargs)
-
-    return wrapper
+RETRY_TIMEOUT = 60
 
 
 def send_completion(
@@ -54,8 +24,6 @@ def send_completion(
     temperature=0,
     extra_params=None,
 ):
-    from aider.llm import litellm
-
     kwargs = dict(
         model=model_name,
         messages=messages,
@@ -88,18 +56,43 @@ def send_completion(
     return hash_object, res
 
 
-@lazy_litellm_retry_decorator
-def simple_send_with_retries(model_name, messages, extra_params=None):
-    try:
-        kwargs = {
-            "model_name": model_name,
-            "messages": messages,
-            "functions": None,
-            "stream": False,
-            "extra_params": extra_params,
-        }
+def simple_send_with_retries(model, messages):
+    litellm_ex = LiteLLMExceptions()
 
-        _hash, response = send_completion(**kwargs)
-        return response.choices[0].message.content
-    except (AttributeError, litellm.exceptions.BadRequestError):
-        return
+    retry_delay = 0.125
+    while True:
+        try:
+            kwargs = {
+                "model_name": model.name,
+                "messages": messages,
+                "functions": None,
+                "stream": False,
+                "temperature": None if not model.use_temperature else 0,
+                "extra_params": model.extra_params,
+            }
+
+            _hash, response = send_completion(**kwargs)
+            if not response or not hasattr(response, "choices") or not response.choices:
+                return None
+            return response.choices[0].message.content
+        except litellm_ex.exceptions_tuple() as err:
+            ex_info = litellm_ex.get_ex_info(err)
+
+            print(str(err))
+            if ex_info.description:
+                print(ex_info.description)
+
+            should_retry = ex_info.retry
+            if should_retry:
+                retry_delay *= 2
+                if retry_delay > RETRY_TIMEOUT:
+                    should_retry = False
+
+            if not should_retry:
+                return None
+
+            print(f"Retrying in {retry_delay:.1f} seconds...")
+            time.sleep(retry_delay)
+            continue
+        except AttributeError:
+            return None

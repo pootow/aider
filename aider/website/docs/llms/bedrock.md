@@ -39,6 +39,20 @@ export AWS_PROFILE=your-profile
 You can add these to your 
 [.env file](/docs/config/dotenv.html).
 
+## Install boto3
+
+The AWS Bedrock provider requires the `boto3` package in order to function correctly:
+
+```bash
+pip install boto3
+```
+
+To use aider installed via `pipx` with AWS Bedrock, you must add the `boto3` dependency to aider's virtual environment by running
+
+```bash
+pipx inject aider-chat boto3
+```
+
 
 ## Running Aider with Bedrock
 
@@ -48,12 +62,18 @@ Once your AWS credentials are set up, you can run Aider with the `--model` comma
 aider --model bedrock/anthropic.claude-3-5-sonnet-20240620-v1:0
 ```
 
+Sometimes it seems to help if you prefix the model name with "us.":
+
+```bash
+aider --model bedrock/us.anthropic.claude-3-5-sonnet-20240620-v1:0
+```
+
 
 ## Available Models
 
 To see some models available via Bedrock, run:
 
-```
+```bash
 aider --list-models bedrock/
 ```
 

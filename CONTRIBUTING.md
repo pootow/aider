@@ -33,12 +33,9 @@ ensure that your contributions can be integrated smoothly.
 
 ## Licensing
 
-By contributing to this project, you agree that your contributions
-will be licensed under the Apache License 2.0. Additionally, you
-understand and agree that contributions may be subject to a different
-license, should the project maintainers decide to change the licensing
-terms.
-
+Before contributing a PR, please review our
+[Individual Contributor License Agreement](https://aider.chat/docs/legal/contributor-agreement.html).
+All contributors will be asked to complete the agreement as part of the PR process.
 
 ## Setting up a Development Environment
 
@@ -190,8 +187,8 @@ pytest
 You can also run specific test files or test cases by providing the file path or test name:
 
 ```
-pytest aider/tests/test_coder.py
-pytest aider/tests/test_coder.py::TestCoder::test_specific_case
+pytest tests/basic/test_coder.py
+pytest tests/basic/test_coder.py::TestCoder::test_specific_case
 ```
 
 #### Continuous Integration
